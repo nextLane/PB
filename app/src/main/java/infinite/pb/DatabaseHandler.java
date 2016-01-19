@@ -63,7 +63,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_COUNT, url.getCount());
         values.put(KEY_STATUS, url.getStatus());
 
-
         // Inserting Row
         db.insert(TABLE_URLS, null, values);
         db.close(); // Closing database connection
@@ -84,10 +83,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
 
-    // TODO: Need is  1. getting n updating only count across a url 2. getting only one column url.
+    // TODO: Need is  1. getting n updating only count across a url 2.minimise db reads and writes
 
     // Getting All Data
-    public List<UrlData> getAllUrls() {
+    public List<UrlData> getAllUrlsData() {
         List<UrlData> urlList = new ArrayList<UrlData>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_URLS;
@@ -99,6 +98,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 UrlData ud = new UrlData(cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)));
+                urlList.add(ud);
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return urlList;
+    }
+
+    // Getting All URLs
+    public List<String> getAllUrls() {
+        List<String> urlList = new ArrayList<String>();
+        // Select All Query
+        String selectQuery = "SELECT "+ KEY_URL +" FROM " + TABLE_URLS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                String ud = cursor.getString(0);
 
                 urlList.add(ud);
             } while (cursor.moveToNext());
@@ -106,6 +126,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return urlList;
+    }
+
+
+
+    // Incrementing count for single url
+    public int valueChange(String url, int count) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_COUNT, count);
+    //    values.put(KEY_STATUS, url.getStatus());
+
+        // updating row
+        return db.update(TABLE_URLS, values, KEY_ID + " = ?",
+                new String[] { url});
+    }
+
+    // Incrementing count and setting status for single url
+    public int valueChange(String url, int count, int status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_COUNT, count);
+        values.put(KEY_STATUS, status);
+
+        // updating row
+        return db.update(TABLE_URLS, values, KEY_ID + " = ?",
+                new String[] { url});
     }
 
     // Updating single url
