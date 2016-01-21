@@ -2,4 +2,9 @@
     <string name="app_name">PB</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_view_records">ViewRecords</string>
+    <string name="large_text">
+        "Material is the metaphor.\n\n
+        when a user tries to pick up one of cards.\n\n"
+    </string>
 </resources>

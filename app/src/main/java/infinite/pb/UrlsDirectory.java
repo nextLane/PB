@@ -1,6 +1,7 @@
 package infinite.pb;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ public class UrlsDirectory {
     {
         urls = new HashMap<>();
         dh= new DatabaseHandler(c);
+    //    dh.onCreate(); //adding db
     }
 
 
@@ -29,6 +31,24 @@ public class UrlsDirectory {
         //fetch urls from db
     }
 
+    public List<UrlData> getData()
+    {
+        return dh.getAllUrlsData();
+    }
+
+    public void dropUrl(String url)
+    {
+        if(!urls.containsKey(url))
+        {
+            addUrl(url);
+        }
+        else
+        {
+            incrementReq(url);
+        }
+
+
+    }
     public void addUrl(String url)
     {
         UrlData newEntry= new UrlData(url);
@@ -40,22 +60,10 @@ public class UrlsDirectory {
 
     public boolean incrementReq(String url)
     {
-        if(!urls.containsKey(url))
-            return false;
-        else
-        {
             urls.get(url).incrementCount(); //update in hashmap
             dh.valueChange(url, urls.get(url).getCount());
             //update value in db
             return true;
-        }
-
     }
 
-
-
-
-
 }
-
-

@@ -11,9 +11,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:src="@drawable/pbicon"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/switch1"
-        android:layout_alignEnd="@+id/switch1" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="139dp" />
 
     <Switch
         android:layout_width="wrap_content"
@@ -22,20 +23,18 @@
         android:id="@+id/switch1"
         android:checked="false"
         android:textSize="@dimen/abc_action_bar_progress_bar_size"
-        android:layout_marginBottom="56dp"
         android:layout_alignBottom="@+id/imageView"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="URLs Tracked  >>"
         android:id="@+id/button"
-        android:layout_alignBottom="@+id/imageView"
-        android:layout_alignRight="@+id/switch1"
-        android:layout_alignEnd="@+id/switch1"
-        android:layout_marginRight="60dp"
-        android:layout_marginEnd="60dp" />
+        android:onClick="viewData"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>
