@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="infinite.pb">
-
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,6 +20,8 @@
             android:name=".ViewRecords"
             android:label="@string/title_activity_view_records"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <service android:name=".MyProxyServer" />
     </application>
 
 </manifest>

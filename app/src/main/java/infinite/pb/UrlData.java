@@ -7,7 +7,6 @@ public class UrlData {
 
     final int UNBLOCKED=0;
     final int BLOCKED=1;
- // final int COOKIES_BLOCKED=2;
 
     private int count;
     private int status;
