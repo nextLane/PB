@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
+    private static DatabaseHandler mInstance = null;
     // Database Version
     private static final int DATABASE_VERSION = 1;
 
@@ -27,7 +28,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_COUNT = "count";
     private static final String KEY_STATUS = "status";
 
-    public DatabaseHandler(Context context) {
+    public static DatabaseHandler getInstance(Context ctx) {
+
+        if (mInstance == null) {
+            mInstance = new DatabaseHandler(ctx.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

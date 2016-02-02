@@ -1,29 +1,32 @@
 package infinite.pb;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
+
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 
 
 public class MyProxyServer extends Service {
 
     private final IBinder mBinder = new MyBinder();
     ServerSocket serverSocket = null;
-
-    //TODO: Handle all the cases of server /socket connectivity with suitable toasts
-
+    static UrlsDirectory udir;
     /** Called when the service is being created. */
     @Override
     public void onCreate() {
         Log.d("*******","On service creation!");
-        int port = 8091;	//default
+        int port = 8090;	//default
 
         try {
             serverSocket = new ServerSocket(port);
@@ -33,6 +36,7 @@ public class MyProxyServer extends Service {
             System.exit(-1);
         }
 
+        udir=new UrlsDirectory(getBaseContext());
     //TODO: Check if this affects the internet connectivity of the device in general
     }
 
@@ -52,6 +56,8 @@ public class MyProxyServer extends Service {
         return res;
     }
 
+//TODO: OnStop print url bag for now, make sure data gets entered in db later on.
+// TODO: The hashmap has to be emptied with time. ? Ponder.
 
     public class MyBinder extends Binder {
         MyProxyServer getService() {
@@ -63,7 +69,19 @@ public class MyProxyServer extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
+    public static void addToBag(String url)
+    {
+        udir.dropUrl(url);
+    }
+
+    public static void printOutBag()
+    {
+        udir.printOutBag();
+    }
+
 }
+
 
 
 class serverWorks extends AsyncTask <ServerSocket, Void, Integer> {
@@ -78,7 +96,7 @@ class serverWorks extends AsyncTask <ServerSocket, Void, Integer> {
                 ProxyConnectionHandler proxyConnectionHandler = new ProxyConnectionHandler(proxySocket);
                 new Thread(proxyConnectionHandler).start();
 
-             } catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return Service.START_FLAG_RETRY;
             }

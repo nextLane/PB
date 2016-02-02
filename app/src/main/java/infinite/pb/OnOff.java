@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.VpnService;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -52,9 +53,12 @@ public class OnOff extends AppCompatActivity {
                     startService(new Intent(getBaseContext(), MyProxyServer.class));
                     Log.d("oal:::::", "service started workin!");
 
+
                 } else {
                     //stop service
                     stopService(new Intent(getBaseContext(), MyProxyServer.class));
+                    Log.d("oal:::::", "vpn service not ready!");
+
 
                 }
 

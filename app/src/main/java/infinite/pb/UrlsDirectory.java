@@ -2,24 +2,28 @@ package infinite.pb;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class UrlsDirectory {
 
-    HashMap<String, UrlData> urls;
+    static HashMap<String, UrlData> urls;
     DatabaseHandler dh ;
 //HashMap used for immediate reference of values and optimizing reads/writes on db, can improve
     public UrlsDirectory(Context c)
     {
         urls = new HashMap<>();
-        dh= new DatabaseHandler(c);
-    //    dh.onCreate(); //adding db
+        dh= DatabaseHandler.getInstance(c);
+       // dh.onCreate(); //adding db
     }
 
-
+//TODO:Batchwise read/writes in DB
     public void fillUrlsBag()
     {
         List<String> u=dh.getAllUrls();
@@ -53,7 +57,7 @@ public class UrlsDirectory {
     {
         UrlData newEntry= new UrlData(url);
         urls.put(url,newEntry);
-        dh.addUrl(newEntry);
+      //  dh.addUrl(newEntry);
         //updated urls bag for immediate reference
         //add url in database
     }
@@ -61,9 +65,25 @@ public class UrlsDirectory {
     public boolean incrementReq(String url)
     {
             urls.get(url).incrementCount(); //update in hashmap
-            dh.valueChange(url, urls.get(url).getCount());
+        //    dh.valueChange(url, urls.get(url).getCount());
             //update value in db
             return true;
+    }
+
+    public void printOutBag()
+    {
+        Log.d("BAG SIZE",urls.size()+"");
+        for (Map.Entry<String,UrlData> entry : urls.entrySet()) {
+            String key = entry.getKey();
+            UrlData value = entry.getValue();
+            Log.d("URL:::",key);
+            Log.d("COUNT:::", ""+value.getCount());
+            // do stuff
+        }
+
+        Log.d("~~~","~~~~");
+
+
     }
 
 }

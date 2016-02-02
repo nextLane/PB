@@ -22,6 +22,12 @@
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <service android:name=".MyProxyServer" />
+        <service android:name=".ConnectToService"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
