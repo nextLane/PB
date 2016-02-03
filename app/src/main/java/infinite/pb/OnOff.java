@@ -36,6 +36,7 @@ public class OnOff extends AppCompatActivity {
                 Context.BIND_AUTO_CREATE);
         setContentView(R.layout.activity_on_off);
 
+
         onoff = (Switch) findViewById(R.id.switch1);
 
 

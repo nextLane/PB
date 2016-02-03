@@ -37,6 +37,8 @@ public class MyProxyServer extends Service {
         }
 
         udir=new UrlsDirectory(getBaseContext());
+        udir.fillUrlsBag();
+        udir.printOutBag();
     //TODO: Check if this affects the internet connectivity of the device in general
     }
 

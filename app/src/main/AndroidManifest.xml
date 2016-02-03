@@ -21,7 +21,9 @@
             android:label="@string/title_activity_view_records"
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        <service android:name=".MyProxyServer" />
+        <service android:name=".MyProxyServer"
+            android:stopWithTask="false" />
+
         <service android:name=".ConnectToService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>

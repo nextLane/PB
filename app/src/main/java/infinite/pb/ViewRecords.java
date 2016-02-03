@@ -38,6 +38,7 @@ public class ViewRecords extends AppCompatActivity {
         init();
     }
 
+    //to be removed
     public void addDummyRecos()
     {
         u_dir = new UrlsDirectory(this);
@@ -52,7 +53,10 @@ public class ViewRecords extends AppCompatActivity {
 
     }
     public void init() {
-        addDummyRecos();
+     //   addDummyRecos();
+
+        DatabaseHandler dh= DatabaseHandler.getInstance(getApplicationContext());
+        List<UrlData> data= dh.getAllUrlsData();
         TableLayout stk = (TableLayout) findViewById(R.id.displayLinear);
         TableRow tbrow0 = new TableRow(this);
         TextView tv0 = new TextView(this);
@@ -73,33 +77,33 @@ public class ViewRecords extends AppCompatActivity {
         tbrow0.addView(tv3);
         stk.addView(tbrow0);
 
-        UrlsDirectory dispData = new UrlsDirectory(this);
-        List<UrlData> data = new ArrayList<>();
-        data.add(new UrlData("facebook.com",0,1));
-        data.add(new UrlData("gstatic.com",5, 0));
-        data.add(new UrlData("wohahahaha.com" , 4 ,0));
-        data.add(new UrlData("IseeYou.com",7,1));
-        data.add(new UrlData("Tracker.com",2,3));
 
-        for (int i = 0; i < 5; i++) {
+
+        for (int i = 0; i < data.size(); i++) {
+            Log.d("@@@###ct:","we can print data");
             TableRow tbrow = new TableRow(this);
             TextView t1v = new TextView(this);
-            t1v.setText("" + i);
+            t1v.setText("" + (i+1));
             t1v.setTextColor(Color.BLACK);
             t1v.setGravity(Gravity.CENTER);
             tbrow.addView(t1v);
             TextView t2v = new TextView(this);
             t2v.setText(data.get(i).getURL());
+            Log.d("@@@###url:",data.get(i).getURL());
             t2v.setTextColor(Color.BLACK);
             t2v.setGravity(Gravity.CENTER);
             tbrow.addView(t2v);
             TextView t3v = new TextView(this);
             t3v.setText(""+data.get(i).getCount());
+            Log.d("@@@###ct:",""+ data.get(i).getCount());
+
             t3v.setTextColor(Color.BLACK);
             t3v.setGravity(Gravity.CENTER);
             tbrow.addView(t3v);
             TextView t4v = new TextView(this);
-            t4v.setText(""+data.get(i).getStatus());
+            t4v.setText((data.get(i).getStatus()==0)?"Allowed":"Blocked");
+            Log.d("@@@###st:", "" + data.get(i).getStatus());
+
             t4v.setTextColor(Color.BLACK);
 
             t4v.setGravity(Gravity.CENTER);

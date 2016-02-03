@@ -8,27 +8,20 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
-    // All Static variables
     private static DatabaseHandler mInstance = null;
-    // Database Version
     private static final int DATABASE_VERSION = 1;
-
-    // Database Name
-    private static final String DATABASE_NAME = "UrlsManager";
-
-    // Contacts table name
-    private static final String TABLE_URLS = "urlRequests";
-
-    // Contacts Table Columns names
+    private static final String DATABASE_NAME = "UrlsDirManager";
+    private static final String TABLE_URLS = "URLRequests";
     private static final String KEY_ID = "id";
     private static final String KEY_URL = "url";
     private static final String KEY_COUNT = "count";
     private static final String KEY_STATUS = "status";
 
-    public static DatabaseHandler getInstance(Context ctx) {
+    public static synchronized DatabaseHandler getInstance(Context ctx) {
 
         if (mInstance == null) {
             mInstance = new DatabaseHandler(ctx.getApplicationContext());
@@ -45,7 +38,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_URLS + "("
                 + KEY_ID + " INTEGER ," + KEY_URL + " TEXT PRIMARY KEY,"
-                + KEY_COUNT + " INTEGER" +  KEY_STATUS + " INTEGER" + ")";
+                + KEY_COUNT + " INTEGER, " +  KEY_STATUS + " INTEGER" + ")";
+        Log.d("CrerateQuery:", CREATE_CONTACTS_TABLE);
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
@@ -59,38 +53,53 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /**
-     * All CRUD(Create, Read, Update, Delete) Operations
-     */
 
-    // Adding new contact
     void addUrl(UrlData url) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(KEY_URL, url.getURL());
-        values.put(KEY_COUNT, url.getCount());
-        values.put(KEY_STATUS, url.getStatus());
+        db.beginTransaction();
+        try
+        {
+            ContentValues values = new ContentValues();
+            values.put(KEY_URL, url.getURL());
+            values.put(KEY_COUNT, url.getCount());
+            values.put(KEY_STATUS, url.getStatus());
 
-        // Inserting Row
-        db.insert(TABLE_URLS, null, values);
+            // Inserting Row
+            db.insert(TABLE_URLS, null, values);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.d("Update:", "Error while trying to add post to database");
+        } finally {
+            db.endTransaction();
+        }
         db.close(); // Closing database connection
     }
 
-    // Getting single contact
+
     UrlData getUrlData(String url) {
         SQLiteDatabase db = this.getReadableDatabase();
+        UrlData ud =null;
+        Cursor cursor = db.query(TABLE_URLS, new String[]{KEY_ID,
+                        KEY_URL, KEY_COUNT, KEY_STATUS}, KEY_URL + "=?",
+                new String[]{url}, null, null, null, null);   //TODO:check the syntax once
+        try {
+            if (cursor != null)
+                cursor.moveToFirst();
+            ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
 
-        Cursor cursor = db.query(TABLE_URLS, new String[] { KEY_ID,
-                        KEY_URL, KEY_COUNT, KEY_STATUS }, KEY_URL + "=?",
-                new String[] { url }, null, null, null, null);   //TODO:check the syntax once
-        if (cursor != null)
-            cursor.moveToFirst();
 
-        UrlData ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)));
+        } catch (Exception e) {
+            Log.d("Update:", "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+
+        }
         return ud;
     }
-
+  //check order here
 
     // TODO: Need is  1. getting n updating only count across a url 2.minimise db reads and writes
 
@@ -100,20 +109,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_URLS;
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                UrlData ud = new UrlData(cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)));
-                urlList.add(ud);
-            } while (cursor.moveToNext());
+        try {
+            // looping through all rows and adding to list
+            if (cursor.moveToFirst()) {
+                do {
+                    UrlData ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
+                    urlList.add(ud);
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+            Log.d("Update:", "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+
         }
 
-        // return contact list
-        return urlList;
-    }
+            return urlList;
+        }
 
     // Getting All URLs
     public List<String> getAllUrls() {
@@ -121,19 +139,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Select All Query
         String selectQuery = "SELECT "+ KEY_URL +" FROM " + TABLE_URLS;
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                String ud = cursor.getString(0);
+        try {
+            // looping through all rows and adding to list
+            if (cursor.moveToFirst()) {
+                do {
+                    String ud = cursor.getString(0);
 
-                urlList.add(ud);
-            } while (cursor.moveToNext());
+                    urlList.add(ud);
+                } while (cursor.moveToNext());
+            }
+        }catch (Exception e) {
+            Log.d("Update:", "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+
         }
 
-        // return contact list
         return urlList;
     }
 
@@ -181,11 +207,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Deleting single URL
     public void deleteUrl(String url) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_URLS, KEY_URL + " = ?",
-                new String[] { url });
+        db.beginTransaction();
+        try {
+            db.delete(TABLE_URLS, KEY_URL + " = ?", new String[] { url });
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.d("Update:", "Error while trying to delete all posts and users");
+        } finally {
+            db.endTransaction();
+        }
         db.close();
     }
-
 
     // Getting Urls Count
     public int getUrlsCount() {
@@ -194,7 +226,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(countQuery, null);
         cursor.close();
 
-        return cursor.getCount();
+        if(cursor!=null)
+            return cursor.getCount();
+        else
+            return 0;
+
     }
 
 }

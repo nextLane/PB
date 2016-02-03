@@ -1,13 +1,8 @@
 package infinite.pb;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,19 +15,21 @@ public class UrlsDirectory {
     {
         urls = new HashMap<>();
         dh= DatabaseHandler.getInstance(c);
-       // dh.onCreate(); //adding db
     }
 
 //TODO:Batchwise read/writes in DB
     public void fillUrlsBag()
-    {
-        List<String> u=dh.getAllUrls();
+    {   if(dh!=null) {
+        List<String> u = dh.getAllUrls();
         List<UrlData> ud = dh.getAllUrlsData();
-
-        for(int index=0; index<u.size(); index++) {
-            urls.put(u.get(index), ud.get(index));
+        if (u.size() > 0 && ud.size() > 0) {
+            for (int index = 0; index < u.size(); index++) {
+                urls.put(u.get(index), ud.get(index));
+            }
         }
-        //fetch urls from db
+
+    }
+
     }
 
     public List<UrlData> getData()
@@ -57,7 +54,7 @@ public class UrlsDirectory {
     {
         UrlData newEntry= new UrlData(url);
         urls.put(url,newEntry);
-      //  dh.addUrl(newEntry);
+        dh.addUrl(newEntry);
         //updated urls bag for immediate reference
         //add url in database
     }
@@ -65,7 +62,7 @@ public class UrlsDirectory {
     public boolean incrementReq(String url)
     {
             urls.get(url).incrementCount(); //update in hashmap
-        //    dh.valueChange(url, urls.get(url).getCount());
+            dh.valueChange(url, urls.get(url).getCount());
             //update value in db
             return true;
     }
