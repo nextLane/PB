@@ -77,25 +77,23 @@ public class ViewRecords extends AppCompatActivity {
         tbrow0.addView(tv3);
         stk.addView(tbrow0);
 
-
-
         for (int i = 0; i < data.size(); i++) {
             Log.d("@@@###ct:","we can print data");
             TableRow tbrow = new TableRow(this);
             TextView t1v = new TextView(this);
-            t1v.setText("" + (i+1));
+            t1v.setText("" + (i + 1));
             t1v.setTextColor(Color.BLACK);
             t1v.setGravity(Gravity.CENTER);
             tbrow.addView(t1v);
             TextView t2v = new TextView(this);
             t2v.setText(data.get(i).getURL());
-            Log.d("@@@###url:",data.get(i).getURL());
+            Log.d("@@@###url:", data.get(i).getURL());
             t2v.setTextColor(Color.BLACK);
             t2v.setGravity(Gravity.CENTER);
             tbrow.addView(t2v);
             TextView t3v = new TextView(this);
-            t3v.setText(""+data.get(i).getCount());
-            Log.d("@@@###ct:",""+ data.get(i).getCount());
+            t3v.setText("" + data.get(i).getCount());
+            Log.d("@@@###ct:", "" + data.get(i).getCount());
 
             t3v.setTextColor(Color.BLACK);
             t3v.setGravity(Gravity.CENTER);

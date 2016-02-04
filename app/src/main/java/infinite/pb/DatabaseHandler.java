@@ -2,6 +2,7 @@ package infinite.pb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,6 +21,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_URL = "url";
     private static final String KEY_COUNT = "count";
     private static final String KEY_STATUS = "status";
+    public static String Lock = "dblock";
 
     public static synchronized DatabaseHandler getInstance(Context ctx) {
 
@@ -39,7 +41,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_URLS + "("
                 + KEY_ID + " INTEGER ," + KEY_URL + " TEXT PRIMARY KEY,"
                 + KEY_COUNT + " INTEGER, " +  KEY_STATUS + " INTEGER" + ")";
-        Log.d("CrerateQuery:", CREATE_CONTACTS_TABLE);
+
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
@@ -55,50 +57,59 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     void addUrl(UrlData url) {
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        db.beginTransaction();
-        try
-        {
-            ContentValues values = new ContentValues();
-            values.put(KEY_URL, url.getURL());
-            values.put(KEY_COUNT, url.getCount());
-            values.put(KEY_STATUS, url.getStatus());
+        synchronized (Lock) {
+            SQLiteDatabase db = this.getWritableDatabase();
 
-            // Inserting Row
-            db.insert(TABLE_URLS, null, values);
-            db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.d("Update:", "Error while trying to add post to database");
-        } finally {
-            db.endTransaction();
+            db.beginTransaction();
+            try {
+                ContentValues values = new ContentValues();
+                values.put(KEY_URL, url.getURL());
+                values.put(KEY_COUNT, url.getCount());
+                values.put(KEY_STATUS, url.getStatus());
+
+                // Inserting Row
+                db.insert(TABLE_URLS, null, values);
+                db.setTransactionSuccessful();
+            } catch (Exception e) {
+                Log.d("Update:", "Error while trying to add post to database");
+            } finally {
+                db.endTransaction();
+            }
+            db.close(); // Closing database connection
+
         }
-        db.close(); // Closing database connection
+
     }
 
 
     UrlData getUrlData(String url) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        UrlData ud =null;
-        Cursor cursor = db.query(TABLE_URLS, new String[]{KEY_ID,
-                        KEY_URL, KEY_COUNT, KEY_STATUS}, KEY_URL + "=?",
-                new String[]{url}, null, null, null, null);   //TODO:check the syntax once
-        try {
-            if (cursor != null)
-                cursor.moveToFirst();
-            ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
+
+        UrlData ud = null;
+        synchronized (Lock) {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.query(TABLE_URLS, new String[]{KEY_ID, KEY_URL, KEY_COUNT, KEY_STATUS}, KEY_URL + "=?",
+                    new String[]{url}, null, null, null, null);   //TODO:check the syntax once
+            try {
+                if (cursor != null)
+                    cursor.moveToFirst();
+                ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
 
 
-        } catch (Exception e) {
-            Log.d("Update:", "Error while trying to get posts from database");
-        } finally {
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
+            } catch (Exception e) {
+                Log.d("Update:", "Error while trying to get posts from database");
+            } finally {
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
+
+                db.close();
+
             }
-
         }
-        return ud;
-    }
+            return ud;
+        }
+
   //check order here
 
     // TODO: Need is  1. getting n updating only count across a url 2.minimise db reads and writes
@@ -107,29 +118,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<UrlData> getAllUrlsData() {
         List<UrlData> urlList = new ArrayList<UrlData>();
         // Select All Query
+
         String selectQuery = "SELECT  * FROM " + TABLE_URLS;
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        synchronized (Lock) {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery(selectQuery, null);
 
-        try {
-            // looping through all rows and adding to list
-            if (cursor.moveToFirst()) {
-                do {
-                    UrlData ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
-                    urlList.add(ud);
-                } while (cursor.moveToNext());
+            try {
+                // looping through all rows and adding to list
+                if (cursor.moveToFirst()) {
+                    do {
+                        UrlData ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
+                        urlList.add(ud);
+                    } while (cursor.moveToNext());
+                }
+
+            } catch (Exception e) {
+                Log.d("Update:", "Error while trying to get posts from database");
+            } finally {
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
+                db.close();
+
             }
-
-        } catch (Exception e) {
-            Log.d("Update:", "Error while trying to get posts from database");
-        } finally {
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-
         }
-
             return urlList;
         }
 
@@ -139,94 +153,121 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Select All Query
         String selectQuery = "SELECT "+ KEY_URL +" FROM " + TABLE_URLS;
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
 
-        try {
-            // looping through all rows and adding to list
-            if (cursor.moveToFirst()) {
-                do {
-                    String ud = cursor.getString(0);
+        synchronized (Lock) {
 
-                    urlList.add(ud);
-                } while (cursor.moveToNext());
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery(selectQuery, null);
+
+            try {
+                // looping through all rows and adding to list
+                if (cursor.moveToFirst()) {
+                    do {
+                        String ud = cursor.getString(0);
+
+                        urlList.add(ud);
+                    } while (cursor.moveToNext());
+                }
+            } catch (Exception e) {
+                Log.d("Update:", "Error while trying to get posts from database");
+            } finally {
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
+                db.close();
+
             }
-        }catch (Exception e) {
-            Log.d("Update:", "Error while trying to get posts from database");
-        } finally {
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-
         }
-
         return urlList;
     }
 
 
 
-    // Incrementing count for single url
-    public int valueChange(String url, int count) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    // setting count for single url
+    public void valueChange(String url, int count) {
 
-        ContentValues values = new ContentValues();
-        values.put(KEY_COUNT, count);
-    //    values.put(KEY_STATUS, url.getStatus());
+        synchronized (Lock) {
 
-        // updating row
-        return db.update(TABLE_URLS, values, KEY_ID + " = ?",
-                new String[] { url});
+            SQLiteDatabase db = this.getWritableDatabase();
+            Log.d("###count url:",url+"::"+count);
+            ContentValues values = new ContentValues();
+            values.put(KEY_COUNT, count);
+            //    values.put(KEY_STATUS, url.getStatus());
+
+            // updating row
+            db.execSQL("UPDATE "+TABLE_URLS+"  SET "+KEY_COUNT+" ="+count+" WHERE "+KEY_URL+"= '"+url+"'");
+
+            db.close();
+        }
     }
 
     // Incrementing count and setting status for single url
-    public int valueChange(String url, int count, int status) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void valueChange(String url, int count, int status) {
 
-        ContentValues values = new ContentValues();
-        values.put(KEY_COUNT, count);
-        values.put(KEY_STATUS, status);
+        synchronized (Lock) {
 
-        // updating row
-        return db.update(TABLE_URLS, values, KEY_ID + " = ?",
-                new String[] { url});
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_COUNT,""+ count);
+            values.put(KEY_STATUS, ""+status);
+
+            // updating row
+            db.update(TABLE_URLS, values, KEY_ID + " = ?",
+                    new String[]{url});
+            db.close();
+        }
     }
 
     // Updating single url
-    public int updateContact(UrlData url) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void updateUrl(UrlData url) {
 
-        ContentValues values = new ContentValues();
-        values.put(KEY_COUNT, url.getCount());
-        values.put(KEY_STATUS, url.getStatus());
+        synchronized (Lock) {
+            SQLiteDatabase db = this.getWritableDatabase();
 
-        // updating row
-        return db.update(TABLE_URLS, values, KEY_ID + " = ?",
-                new String[] { url.getURL()});
+            ContentValues values = new ContentValues();
+            values.put(KEY_COUNT, ""+url.getCount());
+            values.put(KEY_STATUS, ""+url.getStatus());
+
+            // updating row
+            db.update(TABLE_URLS, values, KEY_ID + " = ?",
+                    new String[]{url.getURL()});
+
+            db.close();
+        }
     }
 
     // Deleting single URL
     public void deleteUrl(String url) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            db.delete(TABLE_URLS, KEY_URL + " = ?", new String[] { url });
-            db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.d("Update:", "Error while trying to delete all posts and users");
-        } finally {
-            db.endTransaction();
+
+        synchronized (Lock) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                db.delete(TABLE_URLS, KEY_URL + " = ?", new String[]{url});
+                db.setTransactionSuccessful();
+            } catch (Exception e) {
+                Log.d("Update:", "Error while trying to delete all posts and users");
+            } finally {
+                db.endTransaction();
+            }
+            db.close();
         }
-        db.close();
     }
 
     // Getting Urls Count
     public int getUrlsCount() {
         String countQuery = "SELECT  * FROM " + TABLE_URLS;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
+        Cursor cursor;
 
-        if(cursor!=null)
+        synchronized (Lock) {
+
+            SQLiteDatabase db = this.getReadableDatabase();
+            cursor = db.rawQuery(countQuery, null);
+            cursor.close();
+            db.close();
+        }
+        if (cursor != null)
             return cursor.getCount();
         else
             return 0;

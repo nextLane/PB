@@ -28,6 +28,8 @@ public class OnOff extends AppCompatActivity {
 
     private Switch onoff;
     private MyProxyServer serverService;
+    static boolean mBound =false;
+    static boolean onStatus=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +42,10 @@ public class OnOff extends AppCompatActivity {
         onoff = (Switch) findViewById(R.id.switch1);
 
 
-
+        if(onStatus)
+        {
+            onoff.setChecked(true);
+        }
         //attach a listener to check for changes in state
         onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -53,18 +58,53 @@ public class OnOff extends AppCompatActivity {
                     Log.d("oal:::::","listener workin!");
                     startService(new Intent(getBaseContext(), MyProxyServer.class));
                     Log.d("oal:::::", "service started workin!");
-
+                    onStatus=true;
 
                 } else {
                     //stop service
                     stopService(new Intent(getBaseContext(), MyProxyServer.class));
                     Log.d("oal:::::", "vpn service not ready!");
-
+                    onStatus=false;
 
                 }
 
             }
         });
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+            Log.d("Status:","Resumed");
+            onoff = (Switch) findViewById(R.id.switch1);
+            onoff.setChecked(onStatus);
+
+    }
+
+    @Override
+    public void onRestart()
+    {
+        super.onRestart();
+
+            Log.d("Status:","Restarted");
+            onoff = (Switch) findViewById(R.id.switch1);
+            onoff.setChecked(onStatus);
+
+    }
+
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+
+            Log.d("Status:","Started");
+
+            onoff = (Switch) findViewById(R.id.switch1);
+            onoff.setChecked(onStatus);
+
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -75,17 +115,29 @@ public class OnOff extends AppCompatActivity {
             serverService = b.getService();
             Toast.makeText(OnOff.this, "Server set", Toast.LENGTH_SHORT)
                     .show();
+            mBound=true;
         }
 
         public void onServiceDisconnected(ComponentName className) {
             serverService = null;
+            mBound= false;
         }
     };
-
+//TODO:ADD WiFi / internet exists check
     public void viewData(View view)
     {
         Intent intent = new Intent(OnOff.this, ViewRecords.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        if(mBound) {
+            unbindService(mConnection);
+            mBound=false;
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

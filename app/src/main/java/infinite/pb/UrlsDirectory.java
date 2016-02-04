@@ -45,6 +45,7 @@ public class UrlsDirectory {
         }
         else
         {
+            Log.d("###:","supposed to changed, the count");
             incrementReq(url);
         }
 
@@ -63,6 +64,7 @@ public class UrlsDirectory {
     {
             urls.get(url).incrementCount(); //update in hashmap
             dh.valueChange(url, urls.get(url).getCount());
+
             //update value in db
             return true;
     }
