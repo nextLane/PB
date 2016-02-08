@@ -30,18 +30,17 @@ public class ProxyConnectionHandler implements Runnable {
             byte[] bytes = new byte[BUFFER_SIZE];
             int bytesRead = proxyInputStream.read(bytes, 0, BUFFER_SIZE);
             String request = new String(bytes);
-
-            Log.d("**~~~** Request: ", request);
-
             String host = extractHost(request);
             Log.d("**~~~** Request Host: ", host);
              MyProxyServer.addToBag(host);
             int port = request.startsWith("CONNECT") ? 443 : 80;
 
             if (port == 443) {
-                new Https443RequestHandler(mProxySocket).handle(request);
+                Log.d("***:","443");
+                new Https443RequestHandler(mProxySocket).handle(host);
             } else {
 
+                Log.d("***:","80");
                 mOutsideSocket = new Socket(host, port);
                 OutputStream outsideOutputStream = mOutsideSocket.getOutputStream();
                 outsideOutputStream.write(bytes, 0, bytesRead);
@@ -66,7 +65,6 @@ public class ProxyConnectionHandler implements Runnable {
             }
             mProxySocket.close();
 
-            MyProxyServer.printOutBag();
             Log.d("ACHTUNG", "Cycle: " + (System.currentTimeMillis() - startTimestamp));
 
         } catch (Exception e) {
@@ -78,10 +76,15 @@ public class ProxyConnectionHandler implements Runnable {
     private String extractHost(String request) {
         if (request.contains("Host: ")) {
             int hStart = request.indexOf("Host: ") + 6;
-            int hEnd = request.indexOf('\n', hStart);
-            return request.substring(hStart, hEnd - 1);
+            int hEnd = request.indexOf(':', hStart)+1;
+            if(hEnd< hStart)
+            {
+                hEnd = request.indexOf('\n', hStart);
+            }
+            return request.substring(hStart, hEnd -1 );
         }
         else {
+            Log.d("PPPPPP:", request);
             return "No Host";
         }
 

@@ -2,7 +2,6 @@ package infinite.pb;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,6 +9,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+/* This class intends to provide a database handler that will help in performing CRUD operations, to manage a table storing the information like status and count for every URL
+request that has been tracked from the device.*/
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -23,6 +25,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_STATUS = "status";
     public static String Lock = "dblock";
 
+    //using instance saves us from inconsistency if the db is accessed/updated from multiple locations, multiple times
     public static synchronized DatabaseHandler getInstance(Context ctx) {
 
         if (mInstance == null) {
@@ -35,7 +38,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_URLS + "("
@@ -45,7 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
-    // Upgrading database
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
@@ -76,13 +78,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } finally {
                 db.endTransaction();
             }
-            db.close(); // Closing database connection
+            db.close();
 
         }
 
     }
 
-
+//This method returns all information for any particular url
     UrlData getUrlData(String url) {
 
         UrlData ud = null;
@@ -110,14 +112,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return ud;
         }
 
-  //check order here
 
     // TODO: Need is  1. getting n updating only count across a url 2.minimise db reads and writes
 
-    // Getting All Data
+    //This method returns all information for all the urls in the relation
+
     public List<UrlData> getAllUrlsData() {
         List<UrlData> urlList = new ArrayList<UrlData>();
-        // Select All Query
 
         String selectQuery = "SELECT  * FROM " + TABLE_URLS;
 
@@ -126,7 +127,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             Cursor cursor = db.rawQuery(selectQuery, null);
 
             try {
-                // looping through all rows and adding to list
                 if (cursor.moveToFirst()) {
                     do {
                         UrlData ud = new UrlData(cursor.getString(1), Integer.parseInt(cursor.getString(2)), Integer.parseInt(cursor.getString(3)));
@@ -147,10 +147,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return urlList;
         }
 
-    // Getting All URLs
+    //This method returns the list of all urls saved in relation
+
     public List<String> getAllUrls() {
         List<String> urlList = new ArrayList<String>();
-        // Select All Query
         String selectQuery = "SELECT "+ KEY_URL +" FROM " + TABLE_URLS;
 
 
@@ -160,7 +160,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             Cursor cursor = db.rawQuery(selectQuery, null);
 
             try {
-                // looping through all rows and adding to list
                 if (cursor.moveToFirst()) {
                     do {
                         String ud = cursor.getString(0);
@@ -182,8 +181,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
 
+    //This method is to update the count across any particular URL in the relation
 
-    // setting count for single url
     public void valueChange(String url, int count) {
 
         synchronized (Lock) {
@@ -192,16 +191,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             Log.d("###count url:",url+"::"+count);
             ContentValues values = new ContentValues();
             values.put(KEY_COUNT, count);
-            //    values.put(KEY_STATUS, url.getStatus());
-
-            // updating row
             db.execSQL("UPDATE "+TABLE_URLS+"  SET "+KEY_COUNT+" ="+count+" WHERE "+KEY_URL+"= '"+url+"'");
 
             db.close();
         }
     }
 
-    // Incrementing count and setting status for single url
+    //This method is to update the count and status across any particular URL in the relation
     public void valueChange(String url, int count, int status) {
 
         synchronized (Lock) {
@@ -219,7 +215,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    // Updating single url
+    // This method is responsible to update the count, status (& any other fields that can be added) across any particular URL in the relation
     public void updateUrl(UrlData url) {
 
         synchronized (Lock) {
@@ -237,7 +233,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    // Deleting single URL
+    // Deleting single URL data from the relation
     public void deleteUrl(String url) {
 
         synchronized (Lock) {

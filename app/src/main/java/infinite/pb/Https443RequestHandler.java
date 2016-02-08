@@ -1,8 +1,12 @@
 package infinite.pb;
 
+import android.util.Log;
+
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 
 public class Https443RequestHandler implements RequestHandler {
@@ -18,16 +22,19 @@ public class Https443RequestHandler implements RequestHandler {
     }
 
     @Override
-    public void handle(String request) throws Exception {
-        byte[] bytes = request.getBytes();
-        int bytesRead = bytes.length;
+    public void handle(String hostUrl) throws Exception {
 
-        String host = extractHost(request);
+        String host = hostUrl;
         int port = 443;
 
         mOutsideSocket = new Socket();
         mOutsideSocket.setKeepAlive(true);
-        mOutsideSocket.connect(new InetSocketAddress(host, port));
+
+        try{
+            mOutsideSocket.connect(new InetSocketAddress(host, port));
+        } catch (UnknownHostException e1) {
+            e1.printStackTrace();
+        }
 
         OutputStream proxyOutputStream = mProxySocket.getOutputStream();
         proxyOutputStream.write(("HTTP/1.1 200 Connection established" + CRLF + CRLF).getBytes());
@@ -43,12 +50,6 @@ public class Https443RequestHandler implements RequestHandler {
 
         mOutsideSocket.close();
         mProxySocket.close();
-    }
-
-    private String extractHost(String request) {
-        int hStart = request.indexOf("Host: ") + 6;
-        int hEnd = request.indexOf('\n', hStart);
-        return request.substring(hStart, hEnd - 1);
     }
 
 }

@@ -23,13 +23,15 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+/*This is the main activity that opens up with the onOff switch button and view URLs feature*/
 
 public class OnOff extends AppCompatActivity {
 
     private Switch onoff;
     private MyProxyServer serverService;
-    static boolean mBound =false;
-    static boolean onStatus=false;
+    static boolean mBound =false;   //this keeps track of whether it is bound to the server service or not
+    static boolean onStatus=false;  // this keeps track of the state of on off switch button, can be moved to shared prefs
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +46,10 @@ public class OnOff extends AppCompatActivity {
 
         if(onStatus)
         {
+            //sets state to the last left on the switch
             onoff.setChecked(true);
         }
+
         //attach a listener to check for changes in state
         onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -107,6 +111,7 @@ public class OnOff extends AppCompatActivity {
 
     }
 
+    //The method below is responsible or establishing connection with the service running Proxy Server
     private ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className,

@@ -1,17 +1,12 @@
 package infinite.pb;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
-
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -30,6 +25,8 @@ public class MyProxyServer extends Service {
 
         try {
             serverSocket = new ServerSocket(port);
+            //the value of port is presently hard-coded  make it random
+
             Log.d("Started on: ", ""+port);
         } catch (IOException e) {
             System.err.println("Could not listen on port!");
@@ -37,13 +34,13 @@ public class MyProxyServer extends Service {
         }
 
         udir=new UrlsDirectory(getBaseContext());
-        udir.fillUrlsBag();
-        udir.printOutBag();
+        udir.fillUrlsBag();   //get all the existant urlsdata in the db
+      // udir.printOutBag();
     //TODO: Check if this affects the internet connectivity of the device in general
     }
 
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        boolean listening = true;
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
         int res=Service.START_NOT_STICKY;
         try
         {
@@ -66,7 +63,7 @@ public class MyProxyServer extends Service {
             return MyProxyServer.this;
         }
     }
-    @Nullable
+
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;

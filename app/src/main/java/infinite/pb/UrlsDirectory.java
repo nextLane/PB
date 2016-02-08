@@ -60,13 +60,11 @@ public class UrlsDirectory {
         //add url in database
     }
 
-    public boolean incrementReq(String url)
+    public void incrementReq(String url)
     {
             urls.get(url).incrementCount(); //update in hashmap
             dh.valueChange(url, urls.get(url).getCount());
 
-            //update value in db
-            return true;
     }
 
     public void printOutBag()

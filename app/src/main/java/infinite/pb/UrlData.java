@@ -20,11 +20,11 @@ public class UrlData {
 
     }
 
-    public UrlData(String u, int c, int s)
+    public UrlData(String url, int cnt, int status)
     {
-        this.url=u;
-        this.count=c;
-        this.status=s;
+        this.url=url;
+        this.count=cnt;
+        this.status=status;
     }
 
     public String getURL()

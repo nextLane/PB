@@ -5,9 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-/**
- * Created by .hp on 31-12-2015.
- */
+
 public class DirectionalConnectionHandler extends Thread {
     private final InputStream in;
     private final OutputStream out;

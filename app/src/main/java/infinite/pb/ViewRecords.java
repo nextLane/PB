@@ -12,10 +12,11 @@ import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 import java.util.List;
 
+/*This activity is responsible to display all the urls along with their data from Database relation
+* in a tabular form.
+* */
 public class ViewRecords extends AppCompatActivity {
 
     UrlsDirectory u_dir;
