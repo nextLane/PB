@@ -19,17 +19,11 @@
         <activity
             android:name=".ViewRecords"
             android:label="@string/title_activity_view_records"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <service android:name=".MyProxyServer"
             android:stopWithTask="false" />
 
-        <service android:name=".ConnectToService"
-            android:permission="android.permission.BIND_VPN_SERVICE">
-            <intent-filter>
-                <action android:name="android.net.VpnService"/>
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

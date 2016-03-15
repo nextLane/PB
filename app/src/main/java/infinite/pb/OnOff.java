@@ -23,7 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
-/*This is the main activity that opens up with the onOff switch button and view URLs feature*/
+/*This is the MAIN ACTIVITY that opens up with the onOff switch button and view URLs feature*/
 
 public class OnOff extends AppCompatActivity {
 
@@ -31,7 +31,7 @@ public class OnOff extends AppCompatActivity {
     private MyProxyServer serverService;
     static boolean mBound =false;   //this keeps track of whether it is bound to the server service or not
     static boolean onStatus=false;  // this keeps track of the state of on off switch button, can be moved to shared prefs
-
+    String TAG ="OnOff activity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +39,6 @@ public class OnOff extends AppCompatActivity {
         bindService(intent, mConnection,
                 Context.BIND_AUTO_CREATE);
         setContentView(R.layout.activity_on_off);
-
 
         onoff = (Switch) findViewById(R.id.switch1);
 
@@ -59,15 +58,13 @@ public class OnOff extends AppCompatActivity {
 
                 if (isChecked) {
                  //start service
-                    Log.d("oal:::::","listener workin!");
                     startService(new Intent(getBaseContext(), MyProxyServer.class));
-                    Log.d("oal:::::", "service started workin!");
                     onStatus=true;
 
                 } else {
                     //stop service
                     stopService(new Intent(getBaseContext(), MyProxyServer.class));
-                    Log.d("oal:::::", "vpn service not ready!");
+                    Log.d(TAG, "vpn service not ready!");
                     onStatus=false;
 
                 }
@@ -118,8 +115,7 @@ public class OnOff extends AppCompatActivity {
                                        IBinder binder) {
             MyProxyServer.MyBinder b = (MyProxyServer.MyBinder) binder;
             serverService = b.getService();
-            Toast.makeText(OnOff.this, "Server set", Toast.LENGTH_SHORT)
-                    .show();
+            Log.d(TAG, "Server set");
             mBound=true;
         }
 

@@ -91,6 +91,7 @@ class serverWorks extends AsyncTask <ServerSocket, Void, Integer> {
 
         while(listening) {
             try {
+                Log.d("count:","New connection made");
                 Socket proxySocket = params[0].accept();
                 ProxyConnectionHandler proxyConnectionHandler = new ProxyConnectionHandler(proxySocket);
                 new Thread(proxyConnectionHandler).start();
