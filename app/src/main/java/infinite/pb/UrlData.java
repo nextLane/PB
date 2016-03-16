@@ -1,8 +1,6 @@
 package infinite.pb;
 
-/**
- * Created by .hp on 16-01-2016.
- */
+
 public class UrlData {
 
     final int UNBLOCKED=0;
@@ -61,10 +59,8 @@ public class UrlData {
     {
         this.count++;
     }
+
     //Check if needed
-
-
-
     //status check
 
 }

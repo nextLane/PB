@@ -31,22 +31,13 @@ public class ProxyConnectionHandler implements Runnable {
 
             byte[] bytes = new byte[BUFFER_SIZE];
             int bytesRead = proxyInputStream.read(bytes, 0, BUFFER_SIZE);
-         /*   ByteBuffer buf = ByteBuffer.wrap(bytes);
-            TCP_IP TCP_debug = new TCP_IP(buf);
-            TCP_debug.debug();
-            String destIP = TCP_debug.getDestination();
 
-            //  Log.d("Host:", TCP_debug.getHostname());
-            InetAddress address = InetAddress.getByName(destIP);
-            System.out.println("Host address:" + address.getHostAddress()); // Gaunamas IP (185.11.24.36)
-            System.out.println("Host name:" + address.getHostName()); // www.15min.lt
-*/
             String request = new String(bytes);
             String host = extractHost(request);
             MyProxyServer.addToBag(host);
             int port = request.startsWith("CONNECT") ? 443 : 80;
-            Log.d("**~~~** Request Port: ", ""+port);
-            Log.d("**~~~** Request: ", request);
+            Log.d("Request Port: ", ""+port);
+            Log.d("Request: ", request);
 
 
             if(host.contains("facebook.com"))
@@ -59,11 +50,11 @@ public class ProxyConnectionHandler implements Runnable {
 
             else {
                 if (port == 443) {
-                    Log.d("***:", "443");
+                    Log.d("***Port:", "443");
                     new Https443RequestHandler(mProxySocket).handle(host);
                 } else {
 
-                    Log.d("***:", "80");
+                    Log.d("***Port:", "80");
                     mOutsideSocket = new Socket(host, port);
                     OutputStream outsideOutputStream = mOutsideSocket.getOutputStream();
                     outsideOutputStream.write(bytes, 0, bytesRead);
@@ -89,7 +80,7 @@ public class ProxyConnectionHandler implements Runnable {
             }
             mProxySocket.close();
 
-            Log.d("ACHTUNG", "Cycle: " + (System.currentTimeMillis() - startTimestamp));
+            Log.d("INFO:", "Cycle: " + (System.currentTimeMillis() - startTimestamp));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,7 +99,7 @@ public class ProxyConnectionHandler implements Runnable {
             return request.substring(hStart, hEnd -1 );
         }
         else {
-            Log.d("PPPPPP:", request);
+            Log.d("Request:", request);
             return "No Host";
         }
 

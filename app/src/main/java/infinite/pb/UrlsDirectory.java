@@ -45,7 +45,6 @@ public class UrlsDirectory {
         }
         else
         {
-            Log.d("###:","supposed to changed, the count");
             incrementReq(url);
         }
 
@@ -73,12 +72,10 @@ public class UrlsDirectory {
         for (Map.Entry<String,UrlData> entry : urls.entrySet()) {
             String key = entry.getKey();
             UrlData value = entry.getValue();
-            Log.d("URL:::",key);
-            Log.d("COUNT:::", ""+value.getCount());
+            Log.d("URL:",key);
+            Log.d("COUNT:", ""+value.getCount());
             // do stuff
         }
-
-        Log.d("~~~","~~~~");
 
 
     }
